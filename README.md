@@ -4,7 +4,7 @@ Simple Python experiment with [Evolu](https://github.com/evoluhq/evolu).
 
 GitHub: [octopusengine/py_evolu](https://github.com/octopusengine/py_evolu)
 
-Evolu does not currently have an official Python client, so this project uses a
+Evolu does not currently (2026-05) have an official Python client, so this project uses a
 small TypeScript sidecar with the official Evolu packages. Python calls the
 sidecar and works with local SQLite data, owner/mnemonic restore, backup export,
 and relay sync.
