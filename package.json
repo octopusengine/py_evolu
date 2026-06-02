@@ -1,0 +1,23 @@
+{
+  "name": "py_evolu",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Python-driven Evolu experiments using the official Node.js runtime packages.",
+  "scripts": {
+    "evolu": "tsx src/evolu_cli.ts",
+    "smoke:local": "tsx src/evolu_cli.ts smoke-local",
+    "smoke:sync": "tsx src/evolu_cli.ts smoke-sync",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@evolu/common": "7.4.1",
+    "@evolu/nodejs": "2.4.0",
+    "tsx": "latest",
+    "typescript": "latest"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "latest"
+  }
+}
