@@ -13,19 +13,24 @@ and relay sync.
 
 - `py_evolu.py` - small Python wrapper, class `evolu`
 - `evolu_example.py` - interactive menu example
+- `evolu_app.py` - PyQt6 desktop example
+- `evolu_ui.py` - PyQt6 UI layer used by `evolu_app.py`
 - `src/evolu_cli.ts` - internal Evolu sidecar
 
 The example uses:
 
 - access key file: `.env`
-- local database: `test.db`
-- text file: `test.txt`
-- backup file: `test_backup.sqlite`
-- default relay: `wss://free.evoluhq.com`
+- relay 1 database: `test_relay1.db`
+- relay 2 database: `test_relay2.db`
+- relay 1 text file: `test_relay1.txt`
+- relay 2 text file: `test_relay2.txt`
+- relay 1: `wss://free.evoluhq.com`
+- relay 2: `wss://evolu.petrkr.net`
 
 ## Requirements
 
 - Python 3.10+
+- PyQt6, for the desktop GUI
 - Node.js 22+
 - npm
 
@@ -61,8 +66,17 @@ owner mnemonic. The real `.env` file is ignored by Git.
 python evolu_example.py
 ```
 
+Run the PyQt6 desktop app:
+
+```powershell
+python evolu_app.py
+```
+
 For a more detailed explanation of the local-first flow, relay sync, mnemonic
 restore, and every menu action, see [evolu_example.md](evolu_example.md).
+
+For owner key derivation, `ownerId`, `encryptionKey`, `writeKey`, and relay
+encryption notes, see [evolu_keys.md](evolu_keys.md).
 
 The menu can:
 
@@ -74,6 +88,8 @@ The menu can:
 6. Show owner/mnemonic
 7. Save current mnemonic to `.env` as `EVOLU_KEY`
 8. Reset local DB
+9. Switch active relay profile
+10. Write sample values to both relay profiles
 
 ## Notes
 
