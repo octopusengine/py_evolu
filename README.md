@@ -61,3 +61,10 @@ The menu can:
 
 This is an experiment, not a production Python Evolu client. The real Evolu
 logic still runs through official TypeScript packages.
+
+---
+
+## Links
+
+- [Evolu website](https://www.evolu.dev/)
+- [Evolu GitHub](https://github.com/evoluhq/evolu)
