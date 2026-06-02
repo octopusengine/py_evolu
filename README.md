@@ -2,6 +2,8 @@
 
 Simple Python experiment with [Evolu](https://github.com/evoluhq/evolu).
 
+GitHub: [octopusengine/py_evolu](https://github.com/octopusengine/py_evolu)
+
 Evolu does not currently have an official Python client, so this project uses a
 small TypeScript sidecar with the official Evolu packages. Python calls the
 sidecar and works with local SQLite data, owner/mnemonic restore, backup export,
@@ -15,6 +17,7 @@ and relay sync.
 
 The example uses:
 
+- access key file: `.env`
 - local database: `test.db`
 - text file: `test.txt`
 - backup file: `test_backup.sqlite`
@@ -41,11 +44,25 @@ If `better-sqlite3` has trouble after changing Node versions, rebuild it:
 npm rebuild better-sqlite3
 ```
 
+## Access key
+
+The Evolu owner mnemonic can be stored in `.env`:
+
+```env
+EVOLU_KEY=your-evolu-mnemonic-here
+```
+
+You can copy `.env.example` to `.env`, or use menu option 7 to save the current
+owner mnemonic. The real `.env` file is ignored by Git.
+
 ## Run
 
 ```powershell
 python evolu_example.py
 ```
+
+For a more detailed explanation of the local-first flow, relay sync, mnemonic
+restore, and every menu action, see [evolu_example.md](evolu_example.md).
 
 The menu can:
 
@@ -55,7 +72,8 @@ The menu can:
 4. Export a database backup
 5. Restore owner access from mnemonic
 6. Show owner/mnemonic
-7. Reset local DB
+7. Save current mnemonic to `.env` as `EVOLU_KEY`
+8. Reset local DB
 
 ## Notes
 

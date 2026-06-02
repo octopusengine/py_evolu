@@ -14,6 +14,7 @@ RELAY = "wss://free.evoluhq.com"
 SYNC_WAIT_SECONDS = 8
 
 ROOT = Path(__file__).resolve().parent
+ENV_FILE = ROOT / ".env"
 TEST_TXT = ROOT / "test.txt"
 BACKUP_DB = ROOT / "test_backup.sqlite"
 
@@ -41,6 +42,53 @@ def current_stamp() -> str:
     return datetime.now(timezone.utc).astimezone().isoformat(timespec="seconds")
 
 
+def read_env() -> dict[str, str]:
+    if not ENV_FILE.exists():
+        return {}
+
+    values: dict[str, str] = {}
+    for raw_line in ENV_FILE.read_text(encoding="utf-8").splitlines():
+        line_text = raw_line.strip()
+        if not line_text or line_text.startswith("#") or "=" not in line_text:
+            continue
+        key, value = line_text.split("=", 1)
+        values[key.strip()] = value.strip().strip('"').strip("'")
+    return values
+
+
+def write_env_value(key: str, value: str) -> None:
+    lines = []
+    seen = False
+    if ENV_FILE.exists():
+        lines = ENV_FILE.read_text(encoding="utf-8").splitlines()
+
+    next_lines = []
+    for raw_line in lines:
+        if raw_line.strip().startswith(f"{key}="):
+            next_lines.append(f"{key}={value}")
+            seen = True
+        else:
+            next_lines.append(raw_line)
+
+    if not seen:
+        next_lines.append(f"{key}={value}")
+
+    ENV_FILE.write_text("\n".join(next_lines) + "\n", encoding="utf-8")
+
+
+def evolu_key() -> str:
+    return read_env().get("EVOLU_KEY", "")
+
+
+def mask_secret(value: str | None) -> str:
+    if not value:
+        return "<not set>"
+    parts = value.split()
+    if len(parts) >= 4:
+        return f"{parts[0]} {parts[1]} ... {parts[-2]} {parts[-1]}"
+    return f"{value[:8]}...{value[-8:]}" if len(value) > 20 else "<set>"
+
+
 def make_client() -> evolu:
     return evolu(
         name=DB_NAME,
@@ -56,6 +104,7 @@ def show_access(app: evolu) -> None:
     line()
     print("Evolu example")
     print(f"Relay:      {app.relay_url}")
+    print(f"Access key: {ENV_FILE} -> EVOLU_KEY={mask_secret(evolu_key())}")
     print(f"DB file:    {app.db_path}")
     print(f"Text file:  {TEST_TXT}")
     print(f"Backup DB:  {BACKUP_DB}")
@@ -99,7 +148,12 @@ def backup(app: evolu) -> None:
 def restore_owner(app: evolu) -> None:
     print("\nRestore from mnemonic resets the local DB owner.")
     print("If data was already synced to the relay, run Synchronize after restore.")
-    mnemonic = ask("Enter mnemonic")
+    saved_key = evolu_key()
+    if saved_key:
+        use_saved = ask("Use EVOLU_KEY from .env? Type YES", "YES")
+        mnemonic = saved_key if use_saved == "YES" else ask("Enter mnemonic")
+    else:
+        mnemonic = ask("Enter mnemonic")
     if not mnemonic:
         print("No mnemonic entered.")
         return
@@ -109,7 +163,22 @@ def restore_owner(app: evolu) -> None:
 
 def show_owner(app: evolu) -> None:
     owner = app.owner()
-    show_json("Owner / relay access", owner)
+    visible = {**owner, "mnemonic": mask_secret(owner.get("mnemonic"))}
+    show_json("Owner / relay access", visible)
+    reveal = ask("Reveal full mnemonic? Type YES")
+    if reveal == "YES":
+        show_json("Full owner / relay access", owner)
+
+
+def save_owner_key(app: evolu) -> None:
+    owner = app.owner()
+    mnemonic = owner.get("mnemonic")
+    if not mnemonic:
+        print("Owner has no mnemonic to save.")
+        return
+    write_env_value("EVOLU_KEY", str(mnemonic))
+    print(f"Saved EVOLU_KEY to {ENV_FILE}")
+    print(f"EVOLU_KEY={mask_secret(str(mnemonic))}")
 
 
 def reset_db(app: evolu) -> None:
@@ -130,7 +199,8 @@ def menu() -> None:
         print("4. Export Evolu DB backup")
         print("5. Restore owner from mnemonic")
         print("6. Show owner/mnemonic")
-        print("7. Reset local DB")
+        print("7. Save current mnemonic to .env as EVOLU_KEY")
+        print("8. Reset local DB")
         print("0. Exit")
         choice = ask("Choice")
 
@@ -148,6 +218,8 @@ def menu() -> None:
             elif choice == "6":
                 show_owner(app)
             elif choice == "7":
+                save_owner_key(app)
+            elif choice == "8":
                 reset_db(app)
             elif choice == "0":
                 print("Bye.")
