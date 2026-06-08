@@ -1,4 +1,8 @@
-# py_evolu
+﻿# py_evolu
+
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![Python](https://img.shields.io/badge/Python-3.10%2B-3776ab.svg)
+![Evolu](https://img.shields.io/badge/Evolu-local--first-2f855a.svg)
 
 Simple Python experiment with [Evolu](https://github.com/evoluhq/evolu).
 
@@ -40,6 +44,7 @@ global Node is older, update Node first.
 ## Install
 
 ```powershell
+cd D:\data_codex\py_evolu
 npm install
 ```
 
@@ -81,6 +86,10 @@ setup notes for Windows and Linux, see [EVOLU_LIB.md](EVOLU_LIB.md).
 For owner key derivation, `ownerId`, `encryptionKey`, `writeKey`, and relay
 encryption notes, see [evolu_keys.md](evolu_keys.md).
 
+Local workspace notes for this machine live in [ABOUT.md](ABOUT.md). Keep local
+files, caches, temporary data, and generated outputs under `D:\data_codex`;
+avoid recreating old project copies on `C:`.
+
 The menu can:
 
 1. Load `test.txt` and Evolu data
@@ -119,10 +128,7 @@ logic still runs through official TypeScript packages.
 
 ---
 
-
-
-
-## Links
+## References
 
 - [Evolu website](https://www.evolu.dev/)
 - [Evolu GitHub](https://github.com/evoluhq/evolu)
