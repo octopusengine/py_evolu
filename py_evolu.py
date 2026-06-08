@@ -11,8 +11,15 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parent
 DEFAULT_RELAY = "wss://free.evoluhq.com"
-BUNDLED_NODE = Path(
-    r"C:\Users\Yenda\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe"
+CODEX_RUNTIME_NODE = (
+    Path.home()
+    / ".cache"
+    / "codex-runtimes"
+    / "codex-primary-runtime"
+    / "dependencies"
+    / "node"
+    / "bin"
+    / "node.exe"
 )
 TSX_CLI = ROOT / "node_modules" / "tsx" / "dist" / "cli.mjs"
 EVOLU_CLI = ROOT / "src" / "evolu_cli.ts"
@@ -98,18 +105,13 @@ class evolu:
         time.sleep(seconds)
 
     def _run(self, *args: str) -> dict[str, Any]:
-        node = str(BUNDLED_NODE) if BUNDLED_NODE.exists() else "node"
+        node = self._node_command()
         cmd = [node, str(TSX_CLI), str(EVOLU_CLI), *args, "--name", self.name]
         if self.local_only:
             cmd.append("--local-only")
         if self.relay:
             cmd.extend(["--relay", self.relay])
         env = os.environ.copy()
-        if BUNDLED_NODE.exists():
-            node_bin = str(BUNDLED_NODE.parent)
-            old_path = env.get("Path") or env.get("PATH") or ""
-            env["Path"] = f"{node_bin}{os.pathsep}{old_path}"
-            env["PATH"] = env["Path"]
 
         self._debug(f"RUN: {' '.join(cmd)}")
         started = time.perf_counter()
@@ -143,6 +145,33 @@ class evolu:
         if json_start < 0:
             raise RuntimeError(f"Evolu sidecar did not return JSON:\n{text}")
         return json.loads(text[json_start:])
+
+    def _node_command(self) -> str:
+        configured = os.environ.get("PY_EVOLU_NODE")
+        if configured:
+            return configured
+        if self._node_major("node") >= 22:
+            return "node"
+        if CODEX_RUNTIME_NODE.exists() and self._node_major(str(CODEX_RUNTIME_NODE)) >= 22:
+            return str(CODEX_RUNTIME_NODE)
+        return "node"
+
+    def _node_major(self, command: str) -> int:
+        try:
+            completed = subprocess.run(
+                [command, "--version"],
+                text=True,
+                capture_output=True,
+                timeout=5,
+                check=False,
+            )
+        except (OSError, subprocess.SubprocessError):
+            return 0
+        if completed.returncode != 0:
+            return 0
+        version = completed.stdout.strip().lstrip("v")
+        major = version.split(".", 1)[0]
+        return int(major) if major.isdigit() else 0
 
     def _debug(self, message: str) -> None:
         if not self.debug:

@@ -4,6 +4,9 @@
   "private": true,
   "type": "module",
   "description": "Python-driven Evolu experiments using the official Node.js runtime packages.",
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "evolu": "tsx src/evolu_cli.ts",
     "smoke:local": "tsx src/evolu_cli.ts smoke-local",
