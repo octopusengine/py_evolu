@@ -4,7 +4,7 @@ Simple Python experiment with [Evolu](https://github.com/evoluhq/evolu).
 
 GitHub: [octopusengine/py_evolu](https://github.com/octopusengine/py_evolu)
 
-Evolu does not currently (2026-05) have an official Python client, so this project uses a
+Evolu does not currently have an official Python client, so this project uses a
 small TypeScript sidecar with the official Evolu packages. Python calls the
 sidecar and works with local SQLite data, owner/mnemonic restore, backup export,
 and relay sync.
@@ -74,6 +74,9 @@ python evolu_app.py
 
 For a more detailed explanation of the local-first flow, relay sync, mnemonic
 restore, and every menu action, see [evolu_example.md](evolu_example.md).
+
+For the Python sandbox wrapper concept, what still runs through TypeScript, and
+setup notes for Windows and Linux, see [EVOLU_LIB.md](EVOLU_LIB.md).
 
 For owner key derivation, `ownerId`, `encryptionKey`, `writeKey`, and relay
 encryption notes, see [evolu_keys.md](evolu_keys.md).

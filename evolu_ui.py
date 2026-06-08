@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import html
 import json
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -55,8 +56,8 @@ class MainWindow(QWidget):
         layout = QVBoxLayout(panel)
         layout.setSpacing(8)
 
-        title = QLabel("Evolu actions")
-        title.setObjectName("Title")
+        title = QLabel("Agama Evolu App")
+        title.setObjectName("AppTitle")
         layout.addWidget(title)
 
         profile_box = QGroupBox("Relay profile")
@@ -127,6 +128,9 @@ class MainWindow(QWidget):
         self.debug_checkbox.setChecked(True)
         self.debug_checkbox.toggled.connect(self.debug_changed.emit)
         top.addWidget(self.debug_checkbox)
+        save_btn = QPushButton("Save")
+        save_btn.clicked.connect(self.save_debug)
+        top.addWidget(save_btn)
         clear_btn = QPushButton("Clear")
         clear_btn.clicked.connect(self.clear_debug)
         top.addWidget(clear_btn)
@@ -137,6 +141,7 @@ class MainWindow(QWidget):
         layout.addWidget(self.status_label)
 
         self.debug_box = QTextBrowser()
+        self.debug_box.setObjectName("VerboseLog")
         layout.addWidget(self.debug_box, stretch=1)
 
         return panel
@@ -180,9 +185,18 @@ class MainWindow(QWidget):
 
     def append_debug(self, text: str) -> None:
         self.debug_box.append(f"<pre>{html.escape(text)}</pre>")
+        self.debug_box.verticalScrollBar().setValue(self.debug_box.verticalScrollBar().maximum())
 
     def clear_debug(self) -> None:
         self.debug_box.clear()
+
+    def save_debug(self) -> None:
+        data_dir = Path("data")
+        data_dir.mkdir(exist_ok=True)
+        filename = datetime.now().strftime("log_%y%m%d_%H_%M.txt")
+        path = data_dir / filename
+        path.write_text(self.debug_box.toPlainText(), encoding="utf-8")
+        self.append_debug(f"log saved: {path}")
 
     def update_view(self, state: dict[str, Any]) -> None:
         profile = state.get("profile", {})
@@ -230,9 +244,17 @@ class MainWindow(QWidget):
                 font-weight: 600;
                 color: #ffffff;
             }
+            QLabel#AppTitle {
+                font-size: 15pt;
+                font-weight: 700;
+                color: #b56cff;
+            }
             QLabel#Status {
                 color: #9ad1ff;
                 padding: 4px 0;
+            }
+            QLabel#Muted {
+                color: #8b96a3;
             }
             QGroupBox {
                 border: 1px solid #333941;
@@ -251,7 +273,7 @@ class MainWindow(QWidget):
                 border: 1px solid #3d4a57;
                 border-radius: 5px;
                 padding: 8px 10px;
-                text-align: left;
+                text-align: center;
             }
             QPushButton:hover {
                 background: #314153;
@@ -259,12 +281,40 @@ class MainWindow(QWidget):
             QPushButton:pressed {
                 background: #1d2732;
             }
+            QPushButton:disabled {
+                color: #626b75;
+                background: #1a1f25;
+                border-color: #2c333a;
+            }
+            QCheckBox::indicator, QRadioButton::indicator {
+                width: 16px;
+                height: 16px;
+                border: 2px solid #58616b;
+                background: #1b2026;
+            }
+            QCheckBox::indicator {
+                border-radius: 3px;
+            }
+            QRadioButton::indicator {
+                border-radius: 8px;
+            }
+            QCheckBox::indicator:checked, QRadioButton::indicator:checked {
+                border: 3px solid #58616b;
+                background: #39ff14;
+            }
             QLineEdit, QComboBox, QTextBrowser {
                 background: #0f1114;
                 border: 1px solid #333941;
                 border-radius: 5px;
                 padding: 6px;
                 color: #e8e8e8;
+            }
+            QTextBrowser#VerboseLog {
+                background: #070b08;
+                border-color: #2f5f3b;
+                color: #39ff72;
+                font-family: Consolas, Cascadia Mono, monospace;
+                font-size: 9pt;
             }
             QSplitter::handle {
                 background: #262b31;
